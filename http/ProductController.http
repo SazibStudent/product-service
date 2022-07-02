@@ -1,0 +1,35 @@
+
+
+### ProductController::createNewProduct
+POST http://localhost:9088/api/v1/products
+Content-Type: application/json
+
+{
+  "productName":"Pencil",
+  "brand":"ABC",
+  "purchasePrice":"15.00",
+  "salesPrice":"20.00"
+}
+
+### ProductController::getProductById
+GET http://localhost:9088/api/v1/products/2
+Accept: application/json
+
+### ProductController::updateProductById
+PUT http://localhost:9088/api/v1/products/2
+Content-Type: application/json
+
+{
+  "productName":"Pencil",
+  "brand":"ABC",
+  "purchasePrice":"15.00",
+  "salesPrice":"20.00"
+}
+
+### ProductController::deleteProductById
+DELETE http://localhost:9088/api/v1/products/2
+Accept: application/json
+
+### ProductController::getProductList
+GET http://localhost:9088/api/v1/products
+Accept: application/json
