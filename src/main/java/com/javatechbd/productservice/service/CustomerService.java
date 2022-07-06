@@ -1,18 +1,13 @@
 package com.javatechbd.productservice.service;
 
 import com.javatechbd.productservice.dto.request.CustomerDto;
-import com.javatechbd.productservice.dto.request.ProductDto;
-import com.javatechbd.productservice.dto.response.BrandResponse;
-import com.javatechbd.productservice.dto.response.CustomerResponse;
-import com.javatechbd.productservice.dto.response.ProductResponse;
+import com.javatechbd.productservice.dto.response.CustomerRest;
 import com.javatechbd.productservice.entity.CustomerEntity;
 import com.javatechbd.productservice.repository.CustomerRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,20 +28,20 @@ public class CustomerService {
 
 
 
-    public List<CustomerResponse> getCustomarList() {
+    public List<CustomerRest> getCustomerList() {
         return customerRepository.findAll().stream()
                 .map(itm -> {
-                    var res = new CustomerResponse();
+                    var res = new CustomerRest();
                     BeanUtils.copyProperties(itm, res);
                     return res;
                 }).collect(Collectors.toList());
     }
 
 
-    public CustomerResponse getCustomerById(Long id) {
+    public CustomerRest getCustomerById(Long id) {
 
         var customerEntity = entityValidationService.validateCustomer(id);
-        var response = new CustomerResponse();
+        var response = new CustomerRest();
         BeanUtils.copyProperties(customerEntity, response);
 
        return  response;
@@ -57,10 +52,8 @@ public class CustomerService {
 
         var customerEntity = entityValidationService.validateCustomer(id);
 
-        customerEntity.setCustomerName(customerDto.getCustomerName());
-        customerEntity.setEmail(customerDto.getEmail());
-        customerEntity.setCreated_at(customerDto.getCreated_at());
-        customerEntity.setCreated_at(customerDto.getCreated_at());
+        BeanUtils.copyProperties(customerDto, customerEntity);
+
         customerRepository.save(customerEntity);
     }
 
@@ -68,7 +61,6 @@ public class CustomerService {
 
         var customerEntity = entityValidationService.validateCustomer(id);
         customerRepository.deleteById(customerEntity.getId());
-
     }
 
 

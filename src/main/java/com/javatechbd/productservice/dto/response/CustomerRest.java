@@ -10,15 +10,9 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CustomerResponse {
+public class CustomerRest {
 
-
-    Long id;
-    String customerName;
-    String email;
-    LocalDateTime created_at;
-    String  created_by;
-
-
-
+    private Long id;
+    private String customerName;
+    private String email;
 }

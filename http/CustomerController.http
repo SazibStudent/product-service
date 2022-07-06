@@ -1,0 +1,27 @@
+
+
+### CustomerController::createNewCustomer
+POST http://localhost:9088/api/v1/customers
+Content-Type: application/json
+
+{
+  "customerName":"Sazib",
+  "email":"sazib@gmail.com"
+}
+
+### CustomerController::getCustomerList
+GET http://localhost:9088/api/v1/customers
+Accept: application/json
+
+### CustomerController::updateCustomer
+PUT http://localhost:9088/api/v1/customers/1
+Content-Type: application/json
+
+{
+  "customerName":"Mahadi update",
+  "email":"mahadiupdate@gmail.com"
+}
+
+### CustomerController::deleteCustomerById
+DELETE http://localhost:9088/api/v1/customers/1
+Accept: application/json

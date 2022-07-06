@@ -24,8 +24,4 @@ public class BrandEntity {
     @NotNull
     @Column(name = "brand_name")
     private String brandName;
-
-
-
-
 }

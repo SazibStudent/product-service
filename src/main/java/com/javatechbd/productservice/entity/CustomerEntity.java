@@ -19,20 +19,20 @@ public class CustomerEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
 
     @NotNull
     @Column(name = "customer_name")
-    String customerName;
+    private String customerName;
 
     @NotNull
     @Column(name = "email")
-    String email;
+    private String email;
 
     @Column(name = "created_at")
-    LocalDateTime created_at;
+    private LocalDateTime createdAt;
 
     @Column(name = "created_by")
-    String  created_by;
+    private String  createdBy;
 
 }

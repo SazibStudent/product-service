@@ -1,8 +1,10 @@
 package com.javatechbd.productservice.controller;
 
+import com.javatechbd.productservice.common.ResponseFactory;
+import com.javatechbd.productservice.dto.RestResponse;
 import com.javatechbd.productservice.dto.request.CustomerDto;
 import com.javatechbd.productservice.dto.request.ProductDto;
-import com.javatechbd.productservice.dto.response.CustomerResponse;
+import com.javatechbd.productservice.dto.response.CustomerRest;
 import com.javatechbd.productservice.service.CustomerService;
 
 import lombok.AllArgsConstructor;
@@ -12,43 +14,44 @@ import java.util.List;
 
 @CrossOrigin
 @RestController
-@RequestMapping("api/v1/customer")
+@RequestMapping("api/v1/customers")
 @AllArgsConstructor
 public class CustomerController {
 
     private final CustomerService customerService;
 
-    @PostMapping("/save")
-    public void createNewCustomer(@RequestBody CustomerDto customerDto) {
+    @PostMapping
+    public RestResponse createNewCustomer(@RequestBody CustomerDto customerDto) {
         customerService.createNewCustomer(customerDto);
+        return ResponseFactory.saveSuccess();
     }
 
-    @GetMapping("/list")
-    public List<CustomerResponse> getCustomerList() {
+    @GetMapping
+    public RestResponse getCustomerList() {
 
-        return customerService.getCustomarList();
+        return ResponseFactory.responseData(customerService.getCustomerList());
     }
-
 
     @GetMapping("{id}")
-    public  CustomerResponse getCustomerById(@PathVariable Long id) {
+    public CustomerRest getCustomerById(@PathVariable Long id) {
 
-        return  customerService.getCustomerById(id);
+        return customerService.getCustomerById(id);
     }
 
     @PutMapping("{id}")
-    public void updateBrandById(@PathVariable Long id, @RequestBody ProductDto productDto) {
+    public RestResponse updateCustomer(@PathVariable Long id,
+                                       @RequestBody CustomerDto customerDto) {
 
-        customerService.updateCustomer(id, new CustomerDto());
+        customerService.updateCustomer(id, customerDto);
+        return ResponseFactory.updateSuccess();
     }
 
     @DeleteMapping("{id}")
-    public void deleteCustomerById(@PathVariable Long id) {
+    public RestResponse deleteCustomerById(@PathVariable Long id) {
 
         customerService.deleteCustomerById(id);
+        return ResponseFactory.deleteSuccess();
     }
-
-
 
 
 }

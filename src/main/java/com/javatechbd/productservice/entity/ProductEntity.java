@@ -25,7 +25,15 @@ public class ProductEntity {
     @Column(name = "product_name")
     private String productName;
 
-    private String brand;
+
+    @ManyToOne
+    @JoinColumn(
+            name = "brand_id",
+            foreignKey = @ForeignKey(
+                    name = "products_brand_fk"
+            )
+    )
+    private BrandEntity brand;
 
     @Column(name = "purchase_price")
     private Double purchasePrice;

@@ -2,8 +2,7 @@ package com.javatechbd.productservice.controller;
 
 import com.javatechbd.productservice.dto.request.BrandDto;
 import com.javatechbd.productservice.dto.request.ProductDto;
-import com.javatechbd.productservice.dto.response.BrandResponse;
-import com.javatechbd.productservice.dto.response.ProductResponse;
+import com.javatechbd.productservice.dto.response.BrandRest;
 import com.javatechbd.productservice.service.BrandService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -18,20 +17,20 @@ public class BrandController {
 
      private  final BrandService brandService;
 
-    @PostMapping("/save")
-    public void createNewProduct(@RequestBody BrandDto brandDto) {
+    @PostMapping
+    public void createNewBrand(@RequestBody BrandDto brandDto) {
         brandService.createNewBrand(brandDto);
     }
 
-    @GetMapping("list")
-    public List<BrandResponse> getBrandList() {
+    @GetMapping
+    public List<BrandRest> getBrandList() {
 
         return brandService.getBrandList();
     }
 
 
     @GetMapping("{id}")
-    public BrandResponse getBrandById(@PathVariable Long id) {
+    public BrandRest getBrandById(@PathVariable Long id) {
 
         return brandService.getBrandById(id);
 

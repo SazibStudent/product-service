@@ -6,7 +6,7 @@ Content-Type: application/json
 
 {
   "productName":"Pencil",
-  "brand":"ABC",
+  "brandId":"1",
   "purchasePrice":"15.00",
   "salesPrice":"20.00"
 }

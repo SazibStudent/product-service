@@ -6,7 +6,7 @@ import lombok.Data;
 public class ProductDto {
 
     private String productName;
-    private String brand;
+    private Long brandId;
     private Double purchasePrice;
     private Double salesPrice;
 }

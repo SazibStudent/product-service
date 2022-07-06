@@ -2,9 +2,7 @@ package com.javatechbd.productservice.service;
 
 import com.javatechbd.productservice.dto.request.BrandDto;
 
-import com.javatechbd.productservice.dto.request.ProductDto;
-import com.javatechbd.productservice.dto.response.BrandResponse;
-import com.javatechbd.productservice.dto.response.ProductResponse;
+import com.javatechbd.productservice.dto.response.BrandRest;
 import com.javatechbd.productservice.entity.BrandEntity;
 import com.javatechbd.productservice.repository.BrandRepository;
 import lombok.AllArgsConstructor;
@@ -22,17 +20,18 @@ public class BrandService {
     private final EntityValidationService entityValidationService;
 
     public void createNewBrand(BrandDto brandDto) {
+
         var brandEntity= new BrandEntity();
         BeanUtils.copyProperties(brandDto,brandEntity);
         brandRepository.save(brandEntity);
     }
 
 
-    public BrandResponse getBrandById(long id){
+    public BrandRest getBrandById(long id){
 
         var brandEntity=entityValidationService.validateBrand(id);
 
-        var response =new BrandResponse();
+        var response =new BrandRest();
         BeanUtils.copyProperties(brandEntity,response);
         return response;
     }
@@ -56,11 +55,11 @@ public class BrandService {
     }
 
 
-    public List<BrandResponse> getBrandList() {
+    public List<BrandRest> getBrandList() {
 
         return brandRepository.findAll().stream()
                 .map(itm -> {
-                    var res = new BrandResponse();
+                    var res = new BrandRest();
                     BeanUtils.copyProperties(itm, res);
                     return res;
                 }).collect(Collectors.toList());
