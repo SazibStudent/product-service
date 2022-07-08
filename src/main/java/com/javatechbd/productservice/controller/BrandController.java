@@ -1,5 +1,7 @@
 package com.javatechbd.productservice.controller;
 
+import com.javatechbd.productservice.common.ResponseFactory;
+import com.javatechbd.productservice.dto.RestResponse;
 import com.javatechbd.productservice.dto.request.BrandDto;
 import com.javatechbd.productservice.dto.request.ProductDto;
 import com.javatechbd.productservice.dto.response.BrandRest;
@@ -11,21 +13,22 @@ import java.util.List;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/api/v1/brands")
+@RequestMapping("api/v1/brands")
 @AllArgsConstructor
 public class BrandController {
 
      private  final BrandService brandService;
 
     @PostMapping
-    public void createNewBrand(@RequestBody BrandDto brandDto) {
+    public RestResponse createNewBrand(@RequestBody BrandDto brandDto) {
         brandService.createNewBrand(brandDto);
+        return ResponseFactory.saveSuccess();
     }
 
     @GetMapping
-    public List<BrandRest> getBrandList() {
+    public RestResponse getBrandList() {
 
-        return brandService.getBrandList();
+        return ResponseFactory.responseData(brandService.getBrandList());
     }
 
 
@@ -36,16 +39,17 @@ public class BrandController {
 
     }
     @PutMapping("{id}")
-    public void updateBrandById(@PathVariable Long id, @RequestBody ProductDto productDto) {
+    public RestResponse updateBrand(@PathVariable Long id, @RequestBody BrandDto brandDto) {
 
-        brandService.updateBarnd(id, new BrandDto());
+        brandService.updateBarnd(id,brandDto);
+        return  ResponseFactory.updateSuccess();
     }
 
     @DeleteMapping("{id}")
-    public void deleteBrandById(@PathVariable Long id) {
+    public RestResponse deleteBrand(@PathVariable Long id) {
 
         brandService.deleteBrandById(id);
-
+        return ResponseFactory.deleteSuccess();
     }
 
 

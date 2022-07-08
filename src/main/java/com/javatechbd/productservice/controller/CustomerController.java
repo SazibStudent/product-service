@@ -3,14 +3,13 @@ package com.javatechbd.productservice.controller;
 import com.javatechbd.productservice.common.ResponseFactory;
 import com.javatechbd.productservice.dto.RestResponse;
 import com.javatechbd.productservice.dto.request.CustomerDto;
-import com.javatechbd.productservice.dto.request.ProductDto;
+
 import com.javatechbd.productservice.dto.response.CustomerRest;
 import com.javatechbd.productservice.service.CustomerService;
 
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @CrossOrigin
 @RestController
