@@ -1,13 +1,18 @@
 package com.javatechbd.productservice.service;
 
+import com.javatechbd.productservice.common.PredicateFactory;
 import com.javatechbd.productservice.dto.request.ProductDto;
 import com.javatechbd.productservice.dto.response.ProductRest;
+import com.javatechbd.productservice.dto.search.ProductSearchDTO;
 import com.javatechbd.productservice.entity.ProductEntity;
 import com.javatechbd.productservice.repository.ProductRepository;
+import com.querydsl.core.types.Predicate;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -64,15 +69,9 @@ public class ProductService {
     public List<ProductRest> getProductList() {
 
         return productRepository.findAll().stream()
-                .map(itm -> {
-                    var res = new ProductRest();
-                    BeanUtils.copyProperties(itm, res);
-                    Optional.ofNullable(itm.getBrand())
-                            .ifPresent(brand-> {
-                                res.setBrandId(brand.getId());
-                            });
-                    return res;
-                }).collect(Collectors.toList());
+                .map(itm -> getProductRest(itm))
+                .sorted(Comparator.comparing(ProductRest::getProductName))
+                .collect(Collectors.toList());
     }
 
     public List<ProductRest> searchByProductName(String productName) {
@@ -80,5 +79,32 @@ public class ProductService {
         return getProductList().stream()
                 .filter(itm -> itm.getProductName().toLowerCase().contains(productName.toLowerCase()))
                 .collect(Collectors.toList());
+    }
+
+    public Page<ProductRest> searchProduct(ProductSearchDTO searchDTO) {
+
+        Predicate predicate = PredicateFactory.productSearchPredicate(searchDTO);
+
+        Pageable pageable = PageRequest.of(searchDTO.getPage(), searchDTO.getSize(),
+                Sort.by("productName").ascending());
+
+        Page<ProductEntity> resultPageList = productRepository.findAll(predicate, pageable);
+
+        var resultRestList = resultPageList.getContent().stream()
+                .map(itm -> getProductRest(itm))
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(resultRestList, pageable, resultPageList.getTotalElements());
+
+    }
+
+    private ProductRest getProductRest(ProductEntity itm) {
+        var res = new ProductRest();
+        BeanUtils.copyProperties(itm, res);
+        Optional.ofNullable(itm.getBrand())
+                .ifPresent(brand-> {
+                    res.setBrandId(brand.getId());
+                });
+        return res;
     }
 }

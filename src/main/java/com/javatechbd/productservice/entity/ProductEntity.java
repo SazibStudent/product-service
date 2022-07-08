@@ -25,7 +25,6 @@ public class ProductEntity {
     @Column(name = "product_name")
     private String productName;
 
-
     @ManyToOne
     @JoinColumn(
             name = "brand_id",

@@ -2,8 +2,10 @@ package com.javatechbd.productservice.controller;
 
 import com.javatechbd.productservice.dto.request.ProductDto;
 import com.javatechbd.productservice.dto.response.ProductRest;
+import com.javatechbd.productservice.dto.search.ProductSearchDTO;
 import com.javatechbd.productservice.service.ProductService;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -46,9 +48,9 @@ public class ProductController {
         return productService.getProductList();
     }
 
-    @GetMapping("/search/{name}")
-    public List<ProductRest> searchProductByName(@PathVariable String name) {
+    @PostMapping("/search")
+    public Page<ProductRest> searchProduct(@RequestBody ProductSearchDTO searchDTO) {
 
-        return productService.searchByProductName(name);
+        return productService.searchProduct(searchDTO);
     }
 }
