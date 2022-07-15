@@ -7,6 +7,8 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Optional;
+
 public class PredicateFactory {
 
     private final static QBrandEntity brand = QBrandEntity.brandEntity;
@@ -20,6 +22,9 @@ public class PredicateFactory {
         if(!StringUtils.isEmpty(searchDto.getBrandName())) {
             builder.and(product.brand.brandName.containsIgnoreCase(searchDto.getBrandName()));
         }
+        Optional.ofNullable(searchDto.getProductIds()).ifPresent(itm-> {
+            builder.and(product.id.in(itm)); // where id in (1,2,3)
+        });
         return builder;
     }
 }

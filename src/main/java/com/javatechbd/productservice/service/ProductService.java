@@ -8,6 +8,7 @@ import com.javatechbd.productservice.entity.ProductEntity;
 import com.javatechbd.productservice.repository.ProductRepository;
 import com.querydsl.core.types.Predicate;
 import lombok.AllArgsConstructor;
+import org.apache.commons.collections4.IteratorUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Service
 @AllArgsConstructor
@@ -98,11 +100,22 @@ public class ProductService {
 
     }
 
+    public List<ProductRest> searchProductById(ProductSearchDTO searchDTO) {
+
+        Predicate predicate = PredicateFactory.productSearchPredicate(searchDTO);
+
+        var iterable = productRepository.findAll(predicate);
+
+        return StreamSupport.stream(iterable.spliterator(), false)
+                .map(itm -> getProductRest(itm))
+                .collect(Collectors.toList());
+    }
+
     private ProductRest getProductRest(ProductEntity itm) {
         var res = new ProductRest();
         BeanUtils.copyProperties(itm, res);
         Optional.ofNullable(itm.getBrand())
-                .ifPresent(brand-> {
+                .ifPresent(brand -> {
                     res.setBrandId(brand.getId());
                 });
         return res;

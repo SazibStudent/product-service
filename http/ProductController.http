@@ -33,3 +33,11 @@ Accept: application/json
 ### ProductController::getProductList
 GET http://localhost:9088/api/v1/products
 Accept: application/json
+
+### ProductController::searchProduct
+POST http://localhost:9088/api/v1/products/search-product-by-id
+Content-Type: application/json
+
+{
+  "productIds":[2,3]
+}

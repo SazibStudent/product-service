@@ -53,4 +53,10 @@ public class ProductController {
 
         return productService.searchProduct(searchDTO);
     }
+
+    @PostMapping("/search-product-by-id")
+    public List<ProductRest> searchProductById(@RequestBody ProductSearchDTO searchDTO) {
+
+        return productService.searchProductById(searchDTO);
+    }
 }
