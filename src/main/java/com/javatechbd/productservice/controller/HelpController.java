@@ -17,6 +17,7 @@ public class HelpController {
 
     @GetMapping
     public String port() {
+//        throw new RuntimeException("------");
         return environment.getProperty("server.port");
     }
 }
