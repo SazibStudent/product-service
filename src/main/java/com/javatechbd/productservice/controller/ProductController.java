@@ -45,6 +45,7 @@ public class ProductController {
     @GetMapping
     public List<ProductRest> getProductList() {
 
+        System.out.println("--------------Getting Product List 9088-----------");
         return productService.getProductList();
     }
 
