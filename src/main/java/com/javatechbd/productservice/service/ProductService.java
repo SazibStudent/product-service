@@ -1,5 +1,8 @@
 package com.javatechbd.productservice.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.javatechbd.productservice.common.PredicateFactory;
 import com.javatechbd.productservice.dto.request.ProductDto;
 import com.javatechbd.productservice.dto.response.ProductRest;
@@ -8,10 +11,19 @@ import com.javatechbd.productservice.entity.ProductEntity;
 import com.javatechbd.productservice.repository.ProductRepository;
 import com.querydsl.core.types.Predicate;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.IteratorUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.data.domain.*;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
+import org.springframework.util.concurrent.ListenableFuture;
+import org.springframework.util.concurrent.ListenableFutureCallback;
 
 import java.util.Comparator;
 import java.util.List;
@@ -20,11 +32,14 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
+@Slf4j
 public class ProductService {
 
+    private final Environment environment;
     private final ProductRepository productRepository;
     private final EntityValidationService entityValidationService;
+    private final KafkaTemplate<String, String> kafkaTemplate;
 
     public void createNewProduct(ProductDto productDto) {
 
@@ -34,6 +49,8 @@ public class ProductService {
         productEntity.setBrand(brandEntity);
 
         productRepository.save(productEntity);
+        sendProductToKafka(productEntity);
+
     }
 
     public ProductRest getProductById(Long id) {
@@ -119,5 +136,32 @@ public class ProductService {
                     res.setBrandId(brand.getId());
                 });
         return res;
+    }
+
+    public void sendProductToKafka(ProductEntity productEntity)
+    {
+        var productString = getProductAsString(productEntity);
+        ListenableFuture<SendResult<String, String>> future =
+            this.kafkaTemplate.send(environment.getProperty("application.topic.product-request"), productString);
+
+        future.addCallback(new ListenableFutureCallback<>() {
+            @Override
+            public void onSuccess(SendResult<String, String> result) {
+                log.info("Sent ProductEntity: " + productString + " with offset: " + result.getRecordMetadata().offset());
+            }
+            @Override
+            public void onFailure(Throwable ex) {
+                log.error("Unable to send productString : " + productString, ex);
+            }
+        });
+    }
+
+    private String getProductAsString(ProductEntity productEntity) {
+        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        try {
+            return ow.writeValueAsString(productEntity);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
