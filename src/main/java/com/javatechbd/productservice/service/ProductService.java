@@ -36,132 +36,132 @@ import java.util.stream.StreamSupport;
 @Slf4j
 public class ProductService {
 
-    private final Environment environment;
-    private final ProductRepository productRepository;
-    private final EntityValidationService entityValidationService;
-    private final KafkaTemplate<String, String> kafkaTemplate;
+  private final Environment environment;
+  private final ProductRepository productRepository;
+  private final EntityValidationService entityValidationService;
+  private final KafkaTemplate<String, String> kafkaTemplate;
 
-    public void createNewProduct(ProductDto productDto) {
+  public void createNewProduct(ProductDto productDto) {
 
-        var productEntity = new ProductEntity();
-        var brandEntity = entityValidationService.validateBrand(productDto.getBrandId());
-        BeanUtils.copyProperties(productDto, productEntity);
-        productEntity.setBrand(brandEntity);
+    var productEntity = new ProductEntity();
+    var brandEntity = entityValidationService.validateBrand(productDto.getBrandId());
+    BeanUtils.copyProperties(productDto, productEntity);
+    productEntity.setBrand(brandEntity);
 
-        productRepository.save(productEntity);
-        sendProductToKafka(productEntity);
+    productRepository.save(productEntity);
+    sendProductToKafka(productEntity);
 
-    }
+  }
 
-    public ProductRest getProductById(Long id) {
+  public ProductRest getProductById(Long id) {
 
-        var productEntity = entityValidationService.validateProduct(id);
+    var productEntity = entityValidationService.validateProduct(id);
 
-        var response = new ProductRest();
-        BeanUtils.copyProperties(productEntity, response);
+    var response = new ProductRest();
+    BeanUtils.copyProperties(productEntity, response);
 
-        return response;
-    }
+    return response;
+  }
 
 
-    public void updateProduct(Long id, ProductDto productDto) {
+  public void updateProduct(Long id, ProductDto productDto) {
 
-        var productEntity = entityValidationService.validateProduct(id);
-        var brandEntity = entityValidationService.validateBrand(productDto.getBrandId());
+    var productEntity = entityValidationService.validateProduct(id);
+    var brandEntity = entityValidationService.validateBrand(productDto.getBrandId());
 
-        productEntity.setProductName(productDto.getProductName());
-        productEntity.setBrand(brandEntity);
-        productEntity.setPurchasePrice(productDto.getPurchasePrice());
-        productEntity.setSalesPrice(productDto.getSalesPrice());
+    productEntity.setProductName(productDto.getProductName());
+    productEntity.setBrand(brandEntity);
+    productEntity.setPurchasePrice(productDto.getPurchasePrice());
+    productEntity.setSalesPrice(productDto.getSalesPrice());
 
-        productRepository.save(productEntity);
-    }
+    productRepository.save(productEntity);
+  }
 
-    public void deleteProductById(Long id) {
+  public void deleteProductById(Long id) {
 
-        var productEntity = entityValidationService.validateProduct(id);
+    var productEntity = entityValidationService.validateProduct(id);
 
-        productRepository.deleteById(productEntity.getId());
+    productRepository.deleteById(productEntity.getId());
 
-    }
+  }
 
-    public List<ProductRest> getProductList() {
+  public List<ProductRest> getProductList() {
 
-        return productRepository.findAll().stream()
-                .map(itm -> getProductRest(itm))
-                .sorted(Comparator.comparing(ProductRest::getProductName))
-                .collect(Collectors.toList());
-    }
+    return productRepository.findAll().stream()
+        .map(itm -> getProductRest(itm))
+        .sorted(Comparator.comparing(ProductRest::getProductName))
+        .collect(Collectors.toList());
+  }
 
-    public List<ProductRest> searchByProductName(String productName) {
+  public List<ProductRest> searchByProductName(String productName) {
 
-        return getProductList().stream()
-                .filter(itm -> itm.getProductName().toLowerCase().contains(productName.toLowerCase()))
-                .collect(Collectors.toList());
-    }
+    return getProductList().stream()
+        .filter(itm -> itm.getProductName().toLowerCase().contains(productName.toLowerCase()))
+        .collect(Collectors.toList());
+  }
 
-    public Page<ProductRest> searchProduct(ProductSearchDTO searchDTO) {
+  public Page<ProductRest> searchProduct(ProductSearchDTO searchDTO) {
 
-        Predicate predicate = PredicateFactory.productSearchPredicate(searchDTO);
+    Predicate predicate = PredicateFactory.productSearchPredicate(searchDTO);
 
-        Pageable pageable = PageRequest.of(searchDTO.getPage(), searchDTO.getSize(),
-                Sort.by("productName").ascending());
+    Pageable pageable = PageRequest.of(searchDTO.getPage(), searchDTO.getSize(),
+        Sort.by("productName").ascending());
 
-        Page<ProductEntity> resultPageList = productRepository.findAll(predicate, pageable);
+    Page<ProductEntity> resultPageList = productRepository.findAll(predicate, pageable);
 
-        var resultRestList = resultPageList.getContent().stream()
-                .map(itm -> getProductRest(itm))
-                .collect(Collectors.toList());
+    var resultRestList = resultPageList.getContent().stream()
+        .map(itm -> getProductRest(itm))
+        .collect(Collectors.toList());
 
-        return new PageImpl<>(resultRestList, pageable, resultPageList.getTotalElements());
+    return new PageImpl<>(resultRestList, pageable, resultPageList.getTotalElements());
 
-    }
+  }
 
-    public List<ProductRest> searchProductById(ProductSearchDTO searchDTO) {
+  public List<ProductRest> searchProductById(ProductSearchDTO searchDTO) {
 
-        Predicate predicate = PredicateFactory.productSearchPredicate(searchDTO);
+    Predicate predicate = PredicateFactory.productSearchPredicate(searchDTO);
 
-        var iterable = productRepository.findAll(predicate);
+    var iterable = productRepository.findAll(predicate);
 
-        return StreamSupport.stream(iterable.spliterator(), false)
-                .map(itm -> getProductRest(itm))
-                .collect(Collectors.toList());
-    }
+    return StreamSupport.stream(iterable.spliterator(), false)
+        .map(itm -> getProductRest(itm))
+        .collect(Collectors.toList());
+  }
 
-    private ProductRest getProductRest(ProductEntity itm) {
-        var res = new ProductRest();
-        BeanUtils.copyProperties(itm, res);
-        Optional.ofNullable(itm.getBrand())
-                .ifPresent(brand -> {
-                    res.setBrandId(brand.getId());
-                });
-        return res;
-    }
-
-    public void sendProductToKafka(ProductEntity productEntity)
-    {
-        var productString = getProductAsString(productEntity);
-        ListenableFuture<SendResult<String, String>> future =
-            this.kafkaTemplate.send(environment.getProperty("application.topic.product-request"), productString);
-
-        future.addCallback(new ListenableFutureCallback<>() {
-            @Override
-            public void onSuccess(SendResult<String, String> result) {
-                log.info("Sent ProductEntity: " + productString + " with offset: " + result.getRecordMetadata().offset());
-            }
-            @Override
-            public void onFailure(Throwable ex) {
-                log.error("Unable to send productString : " + productString, ex);
-            }
+  private ProductRest getProductRest(ProductEntity itm) {
+    var res = new ProductRest();
+    BeanUtils.copyProperties(itm, res);
+    Optional.ofNullable(itm.getBrand())
+        .ifPresent(brand -> {
+          res.setBrandId(brand.getId());
         });
-    }
+    return res;
+  }
 
-    private String getProductAsString(ProductEntity productEntity) {
-        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-        try {
-            return ow.writeValueAsString(productEntity);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+  public void sendProductToKafka(ProductEntity productEntity) {
+    var productString = getProductAsString(productEntity);
+    ListenableFuture<SendResult<String, String>> future =
+        this.kafkaTemplate.send(environment.getProperty("application.topic.product-request"), productString);
+
+    future.addCallback(new ListenableFutureCallback<>() {
+      @Override
+      public void onSuccess(SendResult<String, String> result) {
+        log.info("Sent ProductEntity: " + productString + " with offset: " + result.getRecordMetadata().offset());
+      }
+
+      @Override
+      public void onFailure(Throwable ex) {
+        log.error("Unable to send productString : " + productString, ex);
+      }
+    });
+  }
+
+  private String getProductAsString(ProductEntity productEntity) {
+    ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+    try {
+      return ow.writeValueAsString(productEntity);
+    } catch (JsonProcessingException e) {
+      throw new RuntimeException(e);
     }
+  }
 }
