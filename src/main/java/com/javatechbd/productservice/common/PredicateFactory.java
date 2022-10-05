@@ -1,7 +1,8 @@
 package com.javatechbd.productservice.common;
 
 import com.javatechbd.productservice.dto.search.ProductSearchDTO;
-import com.javatechbd.productservice.entity.QBrandEntity;
+import com.javatechbd.productservice.entity
+        .QBrandEntity;
 import com.javatechbd.productservice.entity.QProductEntity;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;

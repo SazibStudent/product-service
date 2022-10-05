@@ -10,11 +10,33 @@ import org.springframework.kafka.config.TopicBuilder;
 public class TopicConfig {
 
   @Value(value = "${application.topic.product-request}")
-  private String messageTopicString;
+  private String productTopicString;
+
+  @Value(value = "${application.topic.brand-request}")
+  private String brandTopicString;
+
+  @Value(value = "${application.topic.customer-request}")
+  private String customerTopicString;
+
+
 
   @Bean
-  public NewTopic messageTopicString() {
-    return TopicBuilder.name(messageTopicString)
+  public NewTopic productTopicString() {
+    return TopicBuilder.name(productTopicString)
         .build();
   }
+
+
+  @Bean
+  public NewTopic brandTopicString() {
+    return TopicBuilder.name(brandTopicString)
+            .build();
+  }
+  @Bean
+  public NewTopic customerTopicString() {
+    return TopicBuilder.name(customerTopicString)
+            .build();
+  }
+
+
 }
