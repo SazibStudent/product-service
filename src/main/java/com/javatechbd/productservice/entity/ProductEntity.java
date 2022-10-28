@@ -34,6 +34,9 @@ public class ProductEntity {
     )
     private BrandEntity brand;
 
+    @Column(name = "brand_id", insertable = false, updatable = false)
+    private Long brandId;
+
     @Column(name = "purchase_price")
     private Double purchasePrice;
 

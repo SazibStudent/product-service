@@ -5,10 +5,10 @@ POST http://localhost:9088/api/v1/products
 Content-Type: application/json
 
 {
-  "productName":"Pencil",
+  "productName":"Khaka",
   "brandId":"1",
-  "purchasePrice":"15.00",
-  "salesPrice":"20.00"
+  "purchasePrice":"20.00",
+  "salesPrice":"30.00"
 }
 
 ### ProductController::getProductById

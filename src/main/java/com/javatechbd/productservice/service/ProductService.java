@@ -49,6 +49,7 @@ public class ProductService {
     productEntity.setBrand(brandEntity);
 
     productRepository.save(productEntity);
+
     sendProductToKafka(productEntity);
 
   }
